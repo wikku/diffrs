@@ -27,15 +27,16 @@ impl<'a> Lcp<'a> for NaiveLcp<'a> {
 
 }
 
-pub struct SaLcp {
-    n: usize,
+pub struct SaLcp<'a> {
+    a: &'a [u8],
+    b: &'a [u8],
     rmq: Rmq,
     lcp: Vec<i32>,
     invsa: Vec<i32>,
 }
 
-impl Lcp<'_> for SaLcp {
-    fn make(a: &[u8], b: &[u8]) -> Self {
+impl<'a> Lcp<'a> for SaLcp<'a> {
+    fn make(a: &'a [u8], b: &'a [u8]) -> Self {
         let ab = Vec::from([a, b].concat());
         let n = a.len();
         let nm = n + b.len();
@@ -46,21 +47,33 @@ impl Lcp<'_> for SaLcp {
             invsa[*s as usize] = i as i32;
         }
         let rmq = Rmq::from_iter(lcp.iter());
-        SaLcp { n, rmq, lcp, invsa }
+        SaLcp { a, b, rmq, lcp, invsa }
     }
 
     fn at(&self, i: usize, j: usize) -> usize {
-        if i == self.n || self.n+j == self.invsa.len() {
-            return 0
+        let mut init = 0;
+        const INIT: usize = 1;
+        for (x, y) in self.a[i..].iter().take(INIT).zip(self.b[j..].iter().take(INIT)) {
+            if x == y {
+                init += 1
+            } else {
+                return init
+            }
+        }
+        let i = i + init;
+        let j = j + init;
+        let n = self.a.len();
+        if i == n || n+j == self.invsa.len() {
+            return init
         }
         let si = self.invsa[i];
-        let sj = self.invsa[self.n+j];
+        let sj = self.invsa[n+j];
         assert!(si != sj);
         let (li, lj) = if si < sj { (si+1, sj) } else { (sj+1, si) };
         let (li, lj) = (li as usize, lj as usize);
         let l = self.lcp[self.rmq.range_minimum(li..=lj).unwrap()];
-        let l = std::cmp::min(l as usize, self.n - i);
-        l
+        let l = std::cmp::min(l as usize, n - i);
+        init + l
     }
 }
 

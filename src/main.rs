@@ -7,21 +7,21 @@ use crate::lcp::*;
 
 fn naive_edit_distance<'a>(a: &'a [u8], b: &'a [u8]) -> usize {
     let m = b.len();
-    let mut dist: Vec<usize> = (0..=m).collect();
-    for (i, c) in a.iter().enumerate() {
-        let mut ndist = vec![usize::MAX; m+1];
-        ndist[0] = i+1;
-        for j in 1..m+1 {
-            if *c == b[j-1] {
-                ndist[j] = dist[j-1];
+    let mut row: Vec<usize> = (0..=m).collect();
+    for i in 0..a.len() {
+        let mut nrow = vec![usize::MAX; m+1];
+        nrow[0] = i+1;
+        for j in 0..m {
+            if a[i] == b[j] {
+                nrow[j+1] = row[j];
             } else {
-                ndist[j] = std::cmp::min(ndist[j-1], std::cmp::min(dist[j-1], dist[j])) + 1;
+                nrow[j+1] = std::cmp::min(nrow[j], std::cmp::min(row[j], row[j+1])) + 1;
             }
         }
-        dist = ndist;
-        //eprintln!("{i} {dist:?}");
+        row = nrow;
+        //eprintln!("{i} {row:?}");
     }
-    dist[m]
+    row[m]
 }
 
 

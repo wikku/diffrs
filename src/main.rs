@@ -40,9 +40,8 @@ fn edit_distance<'a, LCP:Lcp<'a>>(a: &'a [u8], b: &'a [u8]) -> usize {
 
     // ints[int][x] = the row (length of prefix of a) where the distance is x for the last time on int
     // diag is the difference between pos in b and pos in a
-    let mut dist: isize = 0;
     let enddiag = m as isize - n as isize;
-    loop {
+    for dist in 0..=std::cmp::max(n as isize, m as isize) {
         let mut ndiags: ZVec<isize> = ZVec::with_diam((dist+1) as usize, -1);
         //eprintln!("dist={}, enddiag={enddiag}", dist);
         for d in -dist..=dist {
@@ -64,9 +63,8 @@ fn edit_distance<'a, LCP:Lcp<'a>>(a: &'a [u8], b: &'a [u8]) -> usize {
             return 1+dist as usize
         }
         diags = ndiags;
-        dist += 1;
-        assert!((dist as usize) <= n+m);
     }
+    panic!("internal error")
 }
 
 fn main() {

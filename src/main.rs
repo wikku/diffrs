@@ -40,33 +40,29 @@ fn edit_distance<'a, LCP:Lcp<'a>>(a: &'a [u8], b: &'a [u8]) -> usize {
 
     // ints[int][x] = the row (length of prefix of a) where the distance is x for the last time on int
     // diag is the difference between pos in b and pos in a
-    let mut dist: isize = 1;
+    let mut dist: isize = 0;
     let enddiag = m as isize - n as isize;
     loop {
-        let mut ndiags: ZVec<isize> = ZVec::with_diam(dist as usize, -1);
-        //eprintln!("dist={}", dist);
-        //let lodiag = std::cmp::max(-dist, -(n as isize));
-        //let hidiag = std::cmp::min(dist, m as isize);
+        let mut ndiags: ZVec<isize> = ZVec::with_diam((dist+1) as usize, -1);
+        //eprintln!("dist={}, enddiag={enddiag}", dist);
         for d in -dist..=dist {
-            let mut row = -1;
-            for (dd, drow) in [(1, 1), (0, 1), (-1, 0)] {
-                if !(-dist < d+dd && d+dd < dist) { continue }
-                let prev_row = diags[d+dd];
-                if prev_row >= 0 {
-                    if prev_row + drow > n as isize { continue }
-                    if ((prev_row + drow) as isize + d) as usize > m { continue }
-                    row = std::cmp::max(row, prev_row + drow);
-                }
+            if diags[d] == -1 { continue }
+            for (dd, drow) in [(-1, 1), (0, 1), (1, 0)] {
+                ndiags[d+dd] = std::cmp::max(ndiags[d+dd], diags[d] + drow);
             }
-            if row < 0 { continue };
-            let col = (row as isize + d) as usize;
-            let ext_row = row as usize + lcp.at(row as usize, col); // go down the diagonal while letters are equal
-            ndiags[d] = ext_row as isize;
         }
-        if enddiag.abs() <= dist && ndiags[enddiag] == n as isize {
-            return dist as usize
+        for d in -dist-1..=dist+1 {
+            if ndiags[d] > n as isize || ndiags[d] + d > m as isize {
+                ndiags[d] = -1
+            }
+            if ndiags[d] >= 0 {
+                ndiags[d] += lcp.at(ndiags[d] as usize, (ndiags[d] + d) as usize) as isize
+            }
         }
         //eprintln!("ndiags={:?}", ndiags.0);
+        if enddiag.abs() <= 1+dist && ndiags[enddiag] == n as isize {
+            return 1+dist as usize
+        }
         diags = ndiags;
         dist += 1;
         assert!((dist as usize) <= n+m);

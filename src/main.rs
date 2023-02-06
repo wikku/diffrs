@@ -33,7 +33,7 @@ fn edit_distance<'a, LCP:Lcp<'a>>(a: &'a [u8], b: &'a [u8]) -> usize {
     if init == n && init == m {
         return 0
     }
-    let mut diags: ZVec<Option<usize>> = ZVec::with_diam(0, Some(init));
+    let mut diags: ZVec<isize> = ZVec::with_diam(0, init as isize);
 
     //eprintln!("a={:?} b={:?}, init={}", a, b, init);
 
@@ -42,27 +42,28 @@ fn edit_distance<'a, LCP:Lcp<'a>>(a: &'a [u8], b: &'a [u8]) -> usize {
     // diag is the difference between pos in b and pos in a
     let mut dist: isize = 1;
     loop {
-        let mut ndiags = ZVec::with_diam(dist as usize, None);
+        let mut ndiags: ZVec<isize> = ZVec::with_diam(dist as usize, -1);
         //eprintln!("dist={}", dist);
         //let lodiag = std::cmp::max(-dist, -(n as isize));
         //let hidiag = std::cmp::min(dist, m as isize);
         for d in -dist..=dist {
-            let mut row = None;
+            let mut row = -1;
             for (dd, drow) in [(1, 1), (0, 1), (-1, 0)] {
                 if !(-dist < d+dd && d+dd < dist) { continue }
-                if let Some(prev_row) = diags[d+dd] {
-                    if prev_row + drow > n { continue }
+                let prev_row = diags[d+dd];
+                if prev_row >= 0 {
+                    if prev_row + drow > n as isize { continue }
                     if ((prev_row + drow) as isize + d) as usize > m { continue }
-                    row = std::cmp::max(row, Some(prev_row + drow));
+                    row = std::cmp::max(row, prev_row + drow);
                 }
             }
-            let Some(row) = row else { continue };
+            if row < 0 { continue };
             let col = (row as isize + d) as usize;
-            let ext_row = row + lcp.at(row, col); // go down the diagonal while letters are equal
+            let ext_row = row as usize + lcp.at(row as usize, col); // go down the diagonal while letters are equal
             if ext_row == n && n as isize + d == m as isize {
                 return dist as usize;
             }
-            ndiags[d] = Some(ext_row);
+            ndiags[d] = ext_row as isize;
         }
         //eprintln!("ndiags={:?}", ndiags.0);
         diags = ndiags;

@@ -41,6 +41,7 @@ fn edit_distance<'a, LCP:Lcp<'a>>(a: &'a [u8], b: &'a [u8]) -> usize {
     // ints[int][x] = the row (length of prefix of a) where the distance is x for the last time on int
     // diag is the difference between pos in b and pos in a
     let mut dist: isize = 1;
+    let enddiag = m as isize - n as isize;
     loop {
         let mut ndiags: ZVec<isize> = ZVec::with_diam(dist as usize, -1);
         //eprintln!("dist={}", dist);
@@ -60,10 +61,10 @@ fn edit_distance<'a, LCP:Lcp<'a>>(a: &'a [u8], b: &'a [u8]) -> usize {
             if row < 0 { continue };
             let col = (row as isize + d) as usize;
             let ext_row = row as usize + lcp.at(row as usize, col); // go down the diagonal while letters are equal
-            if ext_row == n && n as isize + d == m as isize {
-                return dist as usize;
-            }
             ndiags[d] = ext_row as isize;
+        }
+        if enddiag.abs() <= dist && ndiags[enddiag] == n as isize {
+            return dist as usize
         }
         //eprintln!("ndiags={:?}", ndiags.0);
         diags = ndiags;

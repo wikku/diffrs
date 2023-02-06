@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+target/release/diffrs <(scripts/nchars ${1} a) <(scripts/nchars ${1} a; scripts/nchars ${2} b) ${3}

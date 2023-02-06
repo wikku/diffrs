@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+target/release/diffrs <(yes $(./scripts/nchars ${1} a) | head -n ${2}) <(./scripts/nchars $(( $1*$2 )) a) ${3}

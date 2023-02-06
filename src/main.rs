@@ -8,8 +8,8 @@ use crate::lcp::*;
 fn naive_edit_distance<'a>(a: &'a [u8], b: &'a [u8]) -> usize {
     let m = b.len();
     let mut row: Vec<usize> = (0..=m).collect();
+    let mut nrow = vec![usize::MAX; m+1];
     for i in 0..a.len() {
-        let mut nrow = vec![usize::MAX; m+1];
         nrow[0] = i+1;
         for j in 0..m {
             if a[i] == b[j] {
@@ -18,7 +18,7 @@ fn naive_edit_distance<'a>(a: &'a [u8], b: &'a [u8]) -> usize {
                 nrow[j+1] = std::cmp::min(nrow[j], std::cmp::min(row[j], row[j+1])) + 1;
             }
         }
-        row = nrow;
+        std::mem::swap(&mut row, &mut nrow);
         //eprintln!("{i} {row:?}");
     }
     row[m]

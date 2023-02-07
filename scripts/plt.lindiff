@@ -2,6 +2,6 @@ set datafile separator ','
 set title "a^n vs. b^n (d=n)"
 set xlabel "n"
 set ylabel "[s]"
-plot 'data/lindiff0' using (column("parameter_N")):(column("mean")) title "alg0", \
-     'data/lindiff1' using (column("parameter_N")):(column("mean")) title "alg1", \
-     'data/lindiff2' using (column("parameter_N")):(column("mean")) title "alg2"
+plot 'data/lindiff0' using (column("parameter_N")):(column("mean")) title "alg0" with lines lw 2, \
+     'data/lindiff1' using (column("parameter_N")):(column("mean")) title "alg1" with lines lw 2, \
+     'data/lindiff2' using (column("parameter_N")):(column("mean")) title "alg2" with lines lw 2

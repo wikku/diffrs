@@ -1,0 +1,7 @@
+set datafile separator ','
+set title "(a^kb)^k vs. a^k^^2 (d=k)"
+set xlabel "k"
+set ylabel "[s]"
+plot 'data/sqrtdiff0' using (column("parameter_N")):(column("mean")) title "alg0", \
+     'data/sqrtdiff1' using (column("parameter_N")):(column("mean")) title "alg1", \
+     'data/sqrtdiff2' using (column("parameter_N")):(column("mean")) title "alg2"

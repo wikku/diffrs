@@ -1,0 +1,7 @@
+set datafile separator ','
+set title "a^n vs. a^n (d=0)"
+set xlabel "n"
+set ylabel "[s]"
+plot 'data/constdiff0' using (column("parameter_N")):(column("mean")) title "alg0", \
+     'data/constdiff1' using (column("parameter_N")):(column("mean")) title "alg1", \
+     'data/constdiff2' using (column("parameter_N")):(column("mean")) title "alg2"

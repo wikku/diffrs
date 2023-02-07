@@ -1,0 +1,8 @@
+mkdir -p data
+for ALGO in 0 1 2; do
+	hyperfine \
+		--parameter-list N 1000,2000,3000,4000,5000,6000,7000,8000,9000,10000 \
+		"scripts/avb {N} ${ALGO}" \
+		-M 20 \
+		--export-csv data/lindiff${ALGO}
+done
